@@ -110,6 +110,22 @@ jobs:
          cat resp.txt
          if grep -q "Healthy" resp.txt ; then echo "API POI Healthy"; else exit 2; fi
 
+      - name: Install Selenium & Pytest
+        run: |
+          sudo pip3 install selenium
+          sudo pip3 install pytest
+       
+      - name: Run Test - Swagger Health Probe
+        run: pytest apis/poi/tests/UiTests/testSwaggerHealthProbe.py
+        
+      - shell: bash
+        name: Install Selenium Side Runner
+        run:  npm install -g selenium-side-runner      
+      
+      - shell: bash
+        name: Run Test - Selenium UI Tests
+        run: selenium-side-runner -c "browserName=chrome goog:chromeOptions.args=[disable-infobars, headless, disable-gpu, disable-extensions, disable-dev-shm-usage, no-sandbox]" apis/poi/tests/UiTests/openhackdevopsapp-poi.side --debug
+
       - uses: actions/github-script@0.9.0
         if: failure()
         with:
